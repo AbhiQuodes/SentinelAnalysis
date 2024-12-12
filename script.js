@@ -74,7 +74,7 @@ function calculate() {
         // const sigmaVv = parseFloat(prompt("Enter sigmaVv (example: 1.2):", "1.2"));
     const sigmaVv = parseFloat(document.getElementById("sigma_vv").value);
     const sigmaVh= parseFloat(document.getElementById("sigma_vh").value);
-    const thetaDeg = parseFloat(document.getElementById("theta").value);
+    const theta = parseFloat(document.getElementById("theta").value);
 
         if (isNaN(sigmaVv) || isNaN(sigmaVh) || isNaN(theta)) {
             alert("Please fill in all fields with valid values!");
