@@ -1,6 +1,8 @@
+document.getElementById("calculate-btn").addEventListener("click", calculate);
+
 // Import necessary libraries
-import { pow, exp, cos, sqrt, mean, PI } from "mathjs"; // For math operations
-import numeric from "numeric"; // For optimization (similar to Python's `minimize`)
+//import { pow, exp, cos, sqrt, mean, PI } from "mathjs"; // For math operations
+//import numeric from "numeric"; // For optimization (similar to Python's `minimize`)
 
 // User inputs
 // const sigmaVV_dB = parseFloat(document.getElementById("entry_vv").value);
