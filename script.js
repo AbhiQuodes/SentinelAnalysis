@@ -5,6 +5,7 @@ document.getElementById("calculate-btn").addEventListener("click", calculate);
 // const sigmaVV_dB = parseFloat(document.getElementById("entry_vv").value);
 // const sigmaVH_dB = parseFloat(document.getElementById("entry_vh").value);
 // const thetaDeg = parseFloat(document.getElementById("entry_theta").value);
+function  calculate(){
 
 const sigmaVV_dB = parseFloat(document.getElementById("sigma_vv").value);
 const sigmaVH_dB= parseFloat(document.getElementById("sigma_vh").value);
@@ -120,3 +121,4 @@ const metricsVH = calculateMetrics(observedSigmaVH, predictedSigmaVH);
 //     rmsHeight
     
 // });
+}
