@@ -1,180 +1,123 @@
-document.getElementById("calculate-btn").addEventListener("click", calculate);
+// Import necessary libraries
+import { pow, exp, cos, sqrt, mean, PI } from "mathjs"; // For math operations
+import numeric from "numeric"; // For optimization (similar to Python's `minimize`)
 
-// function calculate() {
-//     const sigmaVVDb = parseFloat(document.getElementById("sigma_vv").value);
-//     const sigmaVHDb = parseFloat(document.getElementById("sigma_vh").value);
-//     const thetaDeg = parseFloat(document.getElementById("theta").value);
+// User inputs
+// const sigmaVV_dB = parseFloat(document.getElementById("entry_vv").value);
+// const sigmaVH_dB = parseFloat(document.getElementById("entry_vh").value);
+// const thetaDeg = parseFloat(document.getElementById("entry_theta").value);
 
-//     if (isNaN(sigmaVVDb) || isNaN(sigmaVHDb) || isNaN(thetaDeg)) {
-//         alert("Please fill in all fields with valid values!");
-//         return;
-//     }
+const sigmaVV_dB = parseFloat(document.getElementById("sigma_vv").value);
+const sigmaVH_dB= parseFloat(document.getElementById("sigma_vh").value);
+const thetaDeg = parseFloat(document.getElementById("theta").value);
+// Convert inputs
+const sigmaVV = Math.pow(10, sigmaVV_dB / 10);
+const sigmaVH = Math.pow(10, sigmaVH_dB / 10);
+const theta = (thetaDeg * Math.PI) / 180; // Convert to radians
+const k = (2 * Math.PI) / 0.056; // Wave number for given wavelength
 
-//     // Convert inputs
-//     const sigmaVV = Math.pow(10, sigmaVVDb / 10);
-//     const sigmaVH = Math.pow(10, sigmaVHDb / 10);
-//     const theta = (Math.PI / 180) * thetaDeg;
-//     const k = (2 * Math.PI) / 0.056;
+// Define constants (replace A, B, C, E, F with actual values)
+const A = 1, B = 1, C = 1, E = 1, F = 1;
 
-//     // Perform calculations (simplified for demo)
-//     const A = 0.1, B = 1.0, C = 2.0, E = 0.05, F = 0.7;
-
-//     const epsilonOpt = 15; // Mock optimized value
-//     const sOpt = 0.05; // Mock optimized value
-//     const modelSigmaVV = (A / Math.cos(theta)) * Math.pow((epsilonOpt - 1) / (epsilonOpt + 1), B) * Math.exp(-C * Math.cos(theta) * k * sOpt);
-//     const modelSigmaVH = E * Math.pow(modelSigmaVV ** 2, F);
-
-//     const resultsDiv = document.getElementById("results");
-//     resultsDiv.innerHTML = `
-//         <h2>Results</h2>
-//         <p><strong>Optimized Dielectric Constant (epsilon):</strong> ${epsilonOpt.toFixed(2)}</p>
-//         <p><strong>Optimized Surface Roughness (s):</strong> ${sOpt.toFixed(2)} meters</p>
-//         <p><strong>Modeled Sigma VV:</strong> ${modelSigmaVV.toExponential(2)}</p>
-//         <p><strong>Modeled Sigma VH:</strong> ${modelSigmaVH.toExponential(2)}</p>
-//     `;
-
-//     plotData([sigmaVV, sigmaVH], [modelSigmaVV, modelSigmaVH]);
-// }
-
-function plotData(observed, modeled) {
-    const canvas = document.getElementById("plot");
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const labels = ["Sigma VV", "Sigma VH"];
-    const barWidth = 80;
-    const colors = ["blue", "orange"];
-
-    observed.forEach((value, i) => {
-        const x = 100 + i * 200;
-        const y = 300 - value * 100;
-        ctx.fillStyle = colors[i];
-        ctx.fillRect(x, y, barWidth, 300 - y);
-        ctx.fillText(labels[i], x + 10, 320);
-    });
-
-    modeled.forEach((value, i) => {
-        const x = 100 + i * 200 + 100;
-         const y = 300 - value * 100;
-         ctx.fillStyle = "green";
-         ctx.fillRect(x, y, barWidth, 300 - y);
-         ctx.fillText(`Modeled ${labels[i]}`, x + 10, 320);
-     });
- }
-
-
-
-// Constants for the model parameters
-const A = 0.1, B = 1.0, C = 2.0, E = 0.05, F = 0.7;
-
-// Function to calculate and display results
-function calculate() {
-    try {
-        // Example user inputs (replace with actual user inputs)
-        // const sigmaVv = parseFloat(prompt("Enter sigmaVv (example: 1.2):", "1.2"));
-    const sigmaVv = parseFloat(document.getElementById("sigma_vv").value);
-    const sigmaVh= parseFloat(document.getElementById("sigma_vh").value);
-    const theta = parseFloat(document.getElementById("theta").value);
-
-        if (isNaN(sigmaVv) || isNaN(sigmaVh) || isNaN(theta)) {
-            alert("Please fill in all fields with valid values!");
-            return;
+// Objective function
+function objective(params) {
+    const epsilon = params[0];
+    const s = params[1];
+    const modelSigmaVV = (A / cos(theta)) * pow((epsilon - 1) / (epsilon + 1), B) * exp(-C * cos(theta) * k * s);
+    const modelSigmaVH = E * pow(modelSigmaVV ** 2, F);
+    const errorVV = Math.pow(modelSigmaVV - sigmaVV, 2);
+    const errorVH = Math.pow(modelSigmaVH - sigmaVH, 2);
+    return errorVV + errorVH;
 }
 
-        // Convert inputs
-        const sigmaVvLinear = Math.pow(10, sigmaVv / 10);
-        const sigmaVhLinear = Math.pow(10, sigmaVh / 10);
-        const thetaRad = (Math.PI / 180) * theta;
-        const k = (2 * Math.PI) / 0.056;
+// Refined grid search for initial guess
+const epsilonRange1 = Array.from({ length: 50 }, (_, i) => 1 + (79 / 49) * i);
+const sRange = Array.from({ length: 50 }, (_, i) => 0.01 + (0.09 / 49) * i);
 
-        // Objective function (simplified for this example)
-        const epsilon = 30; // Example value for dielectric constant
-        const s = 0.05; // Example value for surface roughness
+let bestParams = null;
+let bestObjectiveValue = Infinity;
 
-        // Modeled values
-        const modelSigmaVv = (A / Math.cos(thetaRad)) * Math.pow((epsilon - 1) / (epsilon + 1), B) * Math.exp(-C * Math.cos(thetaRad) * k * s);
-        const modelSigmaVh = E * Math.pow(modelSigmaVv, 2) * F;
-
-        const epsilonOpt = 15; // Mock optimized value
-
-
-        // Estimated soil moisture (Topp equation example)
-        const soilMoisture = 4.3e-6 * Math.pow(epsilon, 3) - 5.5e-4 * Math.pow(epsilon, 2) + 2.92e-2 * epsilon - 5.3e-2;
-
-        // Estimated soil roughness
-        const soilRoughness = 0.5 * (sigmaVv / sigmaVh);
-
-        // Display results
-        
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `
-           <p><strong>Optimized Dielectric Constant (epsilon):</strong> ${epsilonOpt.toFixed(2)}</p>
-           <p>Estimated Soil Moisture: ${soilMoisture.toFixed(3)} or ${(soilMoisture * 100).toFixed(1)}% </p>
-           <p>Estimated Soil Roughness: ${soilRoughness.toFixed(2)} meters </p>
-           <p>Modeled sigma_vv: ${modelSigmaVv.toExponential(2)}</p>
-           <p>Modeled sigma_vh: ${modelSigmaVh.toExponential(2)}</p>
-            `
-        ;
-
-        // Plotting
-        // createChart([sigmaVvLinear], [sigmaVhLinear], modelSigmaVv, modelSigmaVh);
-         plotData([sigmaVvLinear, sigmaVhLinear], [modelSigmaVv, modelSigmaVh]);
-
-    } catch (error) {
-        alert(`An error occurred: ${error.message}`);
+// First pass optimization within epsilon range 1 to 80
+for (const epsilon of epsilonRange1) {
+    for (const s of sRange) {
+        const result = numeric.uncmin(objective, [epsilon, s], 1e-6, 50, 1e-6, [1, 80], [0.01, 0.1]);
+        if (result.f < bestObjectiveValue) {
+            bestObjectiveValue = result.f;
+            bestParams = result.solution;
+        }
     }
 }
 
-// Function to create a bar chart using Chart.js
-function createChart(sigmaVv, sigmaVh, modelSigmaVv, modelSigmaVh) {
-        const canvas = document.getElementById("plot");
-
-    const ctx = document.getElementById('chart').getContext('2d');
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['sigma_vv', 'sigma_vh'],
-            datasets: [
-                {
-                    label: 'Observed',
-                    data: [sigmaVv[0], sigmaVh[0]],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                },
-                {
-                    label: 'Modeled',
-                    data: [modelSigmaVv, modelSigmaVh],
-                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Modeled Backscatter Coefficients',
-                },
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
-    });
+// If the best epsilon is at the boundary, expand the search range
+if (bestParams[0] >= 80) {
+    const epsilonRange2 = Array.from({ length: 50 }, (_, i) => 80 + (2920 / 49) * i);
+    for (const epsilon of epsilonRange2) {
+        for (const s of sRange) {
+            const result = numeric.uncmin(objective, [epsilon, s], 1e-6, 50, 1e-6, [80, 3000], [0.01, 0.1]);
+            if (result.f < bestObjectiveValue) {
+                bestObjectiveValue = result.f;
+                bestParams = result.solution;
+            }
+        }
+    }
 }
 
-// HTML structure for rendering the chart
-//const htmlContent = `
-//<div>
- //   <canvas id="chart" width="800" height="400"></canvas>
-//</div>
-//<button onclick="calculate()">Run Analysis</button>
-//`;
+const [epsilonOpt, sOpt] = bestParams;
 
-// Append the HTML content to the body
-//document.body.innerHTML = htmlContent;
+// Calculate model_sigma_vv and model_sigma_vh using the optimized values
+const modelSigmaVV = (A / cos(theta)) * pow((epsilonOpt - 1) / (epsilonOpt + 1), B) * exp(-C * cos(theta) * k * sOpt);
+const modelSigmaVH = E * pow(modelSigmaVV ** 2, F);
+
+// Sample height measurements
+const heights = [1.0, 1.2, 0.9, 1.1, 1.3, 1.0, 0.8, 1.0, 1.1, 1.2, 1.0];
+const meanHeight = mean(heights);
+const squaredDeviations = heights.map(height => Math.pow(height - meanHeight, 2));
+const rmsHeight = sqrt(mean(squaredDeviations));
+
+// Topp equation to convert ε to soil moisture
+function toppEquation(epsilon) {
+    return 4.3e-6 * pow(epsilon, 3) - 5.5e-4 * pow(epsilon, 2) + 2.92e-2 * epsilon - 5.3e-2;
+}
+
+const soilMoisture = toppEquation(epsilonOpt);
+
+// Empirical soil roughness
+const kEmpirical = 0.5;
+const soilRoughness = kEmpirical * (sigmaVV / sigmaVH);
+
+// Error metrics
+const observedSigmaVV = [sigmaVV];
+const observedSigmaVH = [sigmaVH];
+const predictedSigmaVV = [modelSigmaVV];
+const predictedSigmaVH = [modelSigmaVH];
+
+function calculateMetrics(observed, predicted) {
+    const mae = mean(observed.map((obs, i) => Math.abs(obs - predicted[i])));
+    const mse = mean(observed.map((obs, i) => Math.pow(obs - predicted[i], 2)));
+    const rmse = sqrt(mse);
+    const r2 = observed.length > 1 ? 1 - mse / mean(observed.map(obs => Math.pow(obs - mean(observed), 2))) : 'N/A';
+    return { mae, mse, rmse, r2 };
+}
+
+const metricsVV = calculateMetrics(observedSigmaVV, predictedSigmaVV);
+const metricsVH = calculateMetrics(observedSigmaVH, predictedSigmaVH);
+
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = ` 
+           <p><strong>Optimized Dielectric Constant (epsilon):</strong> ${epsilonOpt}</p>
+           <p>Estimated Soil Moisture: ${soilMoisture} or ${soilMoisture}% </p>
+           <p>Estimated Soil Roughness: ${soilRoughness} meters </p>
+           <p>Modeled sigma_vv: ${modelSigmaVV}</p>
+           <p>Modeled sigma_vh: ${modelSigmaVH.toExponential(2)}</p>`;
+// console.log({
+//     epsilonOpt,
+//     sOpt,
+//     modelSigmaVV,
+//     modelSigmaVH,
+//     soilMoisture,
+//     soilRoughness,
+//     metricsVV,
+//     metricsVH,
+//     rmsHeight
+    
+// });
