@@ -1,0 +1,77 @@
+/* General styles for the entire input form */
+#input-form {
+    max-width: 400px;
+    margin: 0 auto;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #efe2e2;
+    font-family: 'Arial', sans-serif;
+}
+h1{
+    text-align: center;
+    
+}
+/* Labels */
+#input-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* Input fields */
+#input-form input[type="text"] {
+    width: calc(100% - 22px); /* Subtracting padding for better fit */
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Buttons */
+#input-form button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 10px; /* To space buttons apart */
+    transition: background-color 0.3s ease;
+}
+
+/* Button styles */
+#input-form button[py-click] {
+    background-color: #28a745;
+    color: #fff;
+}
+
+#input-form button[py-click]:hover {
+    background-color: #218838;
+}
+
+#input-form button[onclick] {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+#input-form button[onclick]:hover {
+    background-color: #c82333;
+}
+
+/* Result box */
+#result_box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #e9ecef;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+    max-width: 600px;
+    min-width: fit-content;
+}

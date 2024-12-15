@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>🦜 Polyglot - Piratical PyScript</title>
+      <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+      <link rel="stylesheet" href="style.css">
+      <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+  </head>
+  <body>
+    <h1>Sentinel-1A Backscatter Analysis</h1>
+    
+    <div id="input-form">
+        <label for="sigma_vv">sigma_vv (dB):</label>
+        <input type="text" id="sigma_vv" placeholder="Enter sigma_vv in dB">
+        <br>
+        <label for="sigma_vh">sigma_vh (dB):</label>
+        <input type="text" id="sigma_vh" placeholder="Enter sigma_vh in dB">
+        <br>
+        <label for="theta">Incidence Angle (degrees):</label>
+        <input type="text" id="theta" placeholder="Enter incidence angle in degrees">
+        <br>
+        <button py-click="calculate">calculate</button>
+        <!-- <button onclick=exitApp()>Exit</button> -->
+        <div id="result_box"></div>
+    </div>
+    <script type="py" src="./main.py" config="./pyscript.json"></script>
+  </body>
+</html>

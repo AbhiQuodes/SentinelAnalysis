@@ -1,0 +1,4 @@
+{
+    "packages": ["arrr","numpy","matplotlib" ,"scipy","scikit-learn"]
+
+}
